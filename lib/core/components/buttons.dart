@@ -9,7 +9,7 @@ class Button extends StatelessWidget {
     required this.onPressed,
     required this.label,
     this.style = ButtonStyleType.filled,
-    this.color = AppColors.primary,
+    this.color = const Color(0xFF244475), // Warna default diubah ke #244475
     this.textColor = Colors.white,
     this.width = double.infinity,
     this.height = 60.0,
@@ -26,7 +26,7 @@ class Button extends StatelessWidget {
     required this.label,
     this.style = ButtonStyleType.outlined,
     this.color = Colors.transparent,
-    this.textColor = AppColors.primary,
+    this.textColor = const Color(0xFF244475), // Warna text default untuk outlined button
     this.width = double.infinity,
     this.height = 60.0,
     this.borderRadius = 18.0,
@@ -87,7 +87,7 @@ class Button extends StatelessWidget {
               onPressed: disabled ? null : onPressed,
               style: OutlinedButton.styleFrom(
                 backgroundColor: color,
-                side: const BorderSide(color: Colors.grey),
+                side: BorderSide(color: textColor), // Border menggunakan warna yang sama dengan text
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(borderRadius),
                 ),
