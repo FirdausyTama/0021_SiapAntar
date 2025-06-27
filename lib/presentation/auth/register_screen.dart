@@ -43,6 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Form(
           key: _key,
@@ -52,6 +53,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SpaceHeight(100),
+                Image.asset(
+                  'assets/images/logo.png', // Ganti dengan path gambar Anda
+                  width: 120,
+                  height: 120,
+                ),
+                const SpaceHeight(30),
                 Text(
                   'DAFTAR AKUN BARU',
                   style: TextStyle(
