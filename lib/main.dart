@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:siapantar/data/repository/auth_repository.dart';
+import 'package:siapantar/data/repository/profile_buyer_repository.dart';
 import 'package:siapantar/presentation/auth/bloc/login/login_bloc.dart';
 import 'package:siapantar/presentation/auth/bloc/register/register_bloc.dart';
 import 'package:siapantar/presentation/auth/login_screen.dart';
+import 'package:siapantar/presentation/buyer/profile/bloc/profile_buyer_bloc.dart';
+import 'package:siapantar/presentation/welcome_screen.dart';
 import 'package:siapantar/services/service_http_client.dart';
 void main() {
   runApp(const MyApp());
@@ -24,6 +27,11 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               RegisterBloc(authRepository: AuthRepository(ServiceHttpClient())),
         ),
+        BlocProvider(
+          create: (context) => ProfileBuyerBloc(
+            profileBuyerRepository: ProfileBuyerRepository(ServiceHttpClient()),
+          ),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -31,7 +39,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: LoginScreen(),
+        home: WelcomeScreen(),
       ),
     );
   }
