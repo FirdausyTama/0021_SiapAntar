@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 
-import 'package:meta/meta.dart';
 import 'package:siapantar/data/model/request/penyewa/penyewa_profile_request_model.dart';
 import 'package:siapantar/data/model/response/penyewa/penyewa_profile_response_model.dart';
 import 'package:siapantar/data/repository/profile_buyer_repository.dart';

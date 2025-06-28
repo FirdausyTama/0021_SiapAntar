@@ -8,7 +8,7 @@ import 'package:siapantar/core/core.dart';
 import 'package:siapantar/data/model/request/auth/login_request_model.dart';
 import 'package:siapantar/presentation/auth/bloc/login/login_bloc.dart';
 import 'package:siapantar/presentation/auth/register_screen.dart';
-import 'package:siapantar/presentation/buyer/profile/buyer_profile_screen.dart';
+import 'package:siapantar/presentation/buyer/profile/penyewa_profile_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
