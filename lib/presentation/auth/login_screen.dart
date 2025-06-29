@@ -6,6 +6,7 @@ import 'package:siapantar/core/components/spaces.dart';
 import 'package:siapantar/core/constants/colors.dart';
 import 'package:siapantar/core/core.dart';
 import 'package:siapantar/data/model/request/auth/login_request_model.dart';
+import 'package:siapantar/presentation/admin/profile/pages/admin_confirm_screen.dart';
 import 'package:siapantar/presentation/auth/bloc/login/login_bloc.dart';
 import 'package:siapantar/presentation/auth/register_screen.dart';
 import 'package:siapantar/presentation/buyer/profile/penyewa_profile_screen.dart';
@@ -53,11 +54,15 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SpaceHeight(100),
                 // Tambahan gambar di sini
-                Image.asset(
-                  'assets/images/logo.png', // Ganti dengan path gambar Anda
-                  width: 120,
-                  height: 120,
+                ClipOval(
+                  child: Image.asset(
+                    'assets/images/logo.png', // Ganti dengan path gambar Anda
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover, // Agar gambar terisi dengan rapi
+                  ),
                 ),
+
                 const SpaceHeight(30),
                 Text(
                   'SELAMAT DATANG !',
@@ -109,10 +114,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       final role = state.responseModel.user?.role
                           ?.toLowerCase();
                       if (role == 'admin') {
-                        //context.pushAndRemoveUntil(
-                        //  const AdminConfirmScreen(),
-                        //  (route) => false,
-                        //);
+                        context.pushAndRemoveUntil(
+                          const AdminConfirmScreen(),
+                          (route) => false,
+                        );
                       } else if (role == 'buyer') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(state.responseModel.message!)),
@@ -144,7 +149,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
                             },
                       label: state is LoginLoading ? 'Memuat...' : 'Masuk',
-                      
                     );
                   },
                 ),

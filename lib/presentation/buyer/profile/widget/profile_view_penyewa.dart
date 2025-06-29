@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:siapantar/core/core.dart';
 import 'package:siapantar/data/model/response/penyewa/penyewa_profile_response_model.dart';
 import 'package:siapantar/presentation/buyer/home/penyewa_home_screen.dart';
+import 'package:siapantar/presentation/buyer/penyewa_nav_screen.dart';
 
 class ProfileViewBuyer extends StatelessWidget {
   final Data profile;
@@ -76,7 +77,7 @@ class ProfileViewBuyer extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 context.pushAndRemoveUntil(
-                  const PenyewaHomeScreen(),
+                  const PenyewaNavScreen(),
                   (route) => false,
                 );
               },
