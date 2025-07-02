@@ -6,6 +6,7 @@ import 'package:siapantar/presentation/admin/home/admin_home_screen.dart';
 import 'package:siapantar/presentation/admin/home/riwayat/history_admin_screen.dart';
 import 'package:siapantar/presentation/admin/home/driver/tambah_driver_screen.dart';
 import 'package:siapantar/presentation/admin/profile/pages/admin_profile_screen.dart';
+import 'package:siapantar/presentation/admin/sopir/sopir_home_screen.dart';
 
 class AdminMainPage extends StatefulWidget {
   const AdminMainPage({super.key});
@@ -18,7 +19,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
   int _selectedIndex = 0;
   final _widgets = [
     const AdminHomeScreen(),
-    const TambahDriverScreen(),
+    const SopirHomeScreen(),
     const HistoryAdminScreen(),
     const AdminProfileScreen(),
   ];

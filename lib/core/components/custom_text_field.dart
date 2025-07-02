@@ -14,6 +14,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool readOnly;
   final int maxLines;
+  final String? prefixText; // ✅ Tambahkan ini
 
   const CustomTextField({
     super.key,
@@ -28,6 +29,7 @@ class CustomTextField extends StatelessWidget {
     this.readOnly = false,
     this.maxLines = 1,
     required this.validator,
+    this.prefixText, // ✅ Tambahkan ini
   });
 
   @override
@@ -58,9 +60,11 @@ class CustomTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           readOnly: readOnly,
+          maxLines: maxLines,
           decoration: InputDecoration(
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
+            prefixText: prefixText, // ✅ Tambahkan ini
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.0),
               borderSide: const BorderSide(color: Colors.grey),

@@ -37,6 +37,7 @@ class _PenyewaHomeScreenState extends State<PenyewaHomeScreen> {
               'assets/images/iklan50.png',
             ),
           ],
+          
         ),
       ),
     );

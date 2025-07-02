@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:siapantar/data/repository/auth_repository.dart';
 import 'package:siapantar/data/repository/profile_admin_repository.dart';
 import 'package:siapantar/data/repository/profile_buyer_repository.dart';
+import 'package:siapantar/data/repository/sopir_repository.dart';
 import 'package:siapantar/presentation/admin/profile/bloc/add_profile/add_profile_bloc.dart';
 import 'package:siapantar/presentation/admin/profile/bloc/get_profile/get_profile_bloc.dart';
+import 'package:siapantar/presentation/admin/sopir/bloc/sopir_bloc.dart';
 import 'package:siapantar/presentation/auth/bloc/login/login_bloc.dart';
 import 'package:siapantar/presentation/auth/bloc/register/register_bloc.dart';
 import 'package:siapantar/presentation/auth/login_screen.dart';
@@ -46,6 +48,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) =>
               GetProfileBloc(PrifileAdminRepository(ServiceHttpClient())),
+        ),
+        BlocProvider(
+          create: (context) => SopirBloc(SopirRepository(ServiceHttpClient())),
         ),
       ],
       child: MaterialApp(

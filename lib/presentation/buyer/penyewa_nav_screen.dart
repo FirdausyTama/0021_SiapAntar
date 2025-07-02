@@ -16,7 +16,7 @@ class _PenyewaNavScreenState extends State<PenyewaNavScreen> {
   int _selectedIndex = 0;
   final _widgets = [
     const PenyewaHomeScreen(),
-    const TambahDriverScreen(),
+    const SopirsHomeScreen(),
     const HistoryPenyewaScreen(),
     const ProfilPenyewaScreen(),
   ];
