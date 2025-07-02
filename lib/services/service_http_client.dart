@@ -73,6 +73,54 @@ class ServiceHttpClient {
     }
   }
 
+  // METHOD YANG HILANG - PUT WITH TOKEN
+  Future<http.Response> putWithToken(
+    String endPoint,
+    Map<String, dynamic> body,
+  ) async {
+    final token = await secureStorage.read(key: "authToken");
+    final url = Uri.parse("$baseUrl$endPoint");
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      _logRequest("PUT", url, body, response);
+      return response;
+    } catch (e) {
+      throw Exception("PUT request failed: $e");
+    }
+  }
+
+  // METHOD YANG HILANG - DELETE WITH TOKEN
+  Future<http.Response> deleteWithToken(String endPoint) async {
+    final token = await secureStorage.read(key: "authToken");
+    final url = Uri.parse("$baseUrl$endPoint");
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      _logRequest("DELETE", url, null, response);
+      return response;
+    } catch (e) {
+      throw Exception("DELETE request failed: $e");
+    }
+  }
+
   void _logRequest(
     String method,
     Uri url,
