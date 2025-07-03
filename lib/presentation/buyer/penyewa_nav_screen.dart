@@ -4,6 +4,7 @@ import 'package:siapantar/presentation/buyer/home/history_penyewa_screen.dart';
 import 'package:siapantar/presentation/buyer/home/penyewa_home_screen.dart';
 import 'package:siapantar/presentation/buyer/home/profil_penyewa_screen.dart';
 import 'package:siapantar/presentation/buyer/home/cari_driver_screen.dart';
+import 'package:siapantar/presentation/buyer/pemesanan/pesanan_home_screen.dart';
 
 class PenyewaNavScreen extends StatefulWidget {
   const PenyewaNavScreen({super.key});
@@ -17,7 +18,7 @@ class _PenyewaNavScreenState extends State<PenyewaNavScreen> {
   final _widgets = [
     const PenyewaHomeScreen(),
     const SopirsHomeScreen(),
-    const HistoryPenyewaScreen(),
+    const PemesananHomeScreen(),
     const ProfilPenyewaScreen(),
   ];
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:siapantar/data/repository/auth_repository.dart';
+import 'package:siapantar/data/repository/pemesanan_repository.dart';
 import 'package:siapantar/data/repository/profile_admin_repository.dart';
 import 'package:siapantar/data/repository/profile_buyer_repository.dart';
 import 'package:siapantar/data/repository/sopir_repository.dart';
@@ -10,6 +11,7 @@ import 'package:siapantar/presentation/admin/sopir/bloc/sopir_bloc.dart';
 import 'package:siapantar/presentation/auth/bloc/login/login_bloc.dart';
 import 'package:siapantar/presentation/auth/bloc/register/register_bloc.dart';
 import 'package:siapantar/presentation/auth/login_screen.dart';
+import 'package:siapantar/presentation/buyer/pemesanan/bloc/pemesanan_bloc.dart';
 import 'package:siapantar/presentation/buyer/profile/bloc/profile_buyer_bloc.dart';
 import 'package:siapantar/presentation/welcome_screen.dart';
 import 'package:siapantar/services/service_http_client.dart';
@@ -51,6 +53,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => SopirBloc(SopirRepository(ServiceHttpClient())),
+        ),
+        BlocProvider(
+          create: (context) => PemesananBloc(PemesananRepository(ServiceHttpClient())),
         ),
       ],
       child: MaterialApp(

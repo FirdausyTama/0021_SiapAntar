@@ -61,6 +61,7 @@ class SopirDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+      backgroundColor: AppColors.primary,
       body: BlocListener<SopirBloc, SopirState>(
         listener: (context, state) {
           if (state is SopirDeleteSuccessState) {
@@ -88,29 +89,7 @@ class SopirDetailScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Foto Sopir
-              Center(
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary, width: 3),
-                    image: data.fotoSopir != null && data.fotoSopir!.isNotEmpty
-                        ? DecorationImage(
-                            image: NetworkImage(data.fotoSopir!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  ),
-                  child: data.fotoSopir == null || data.fotoSopir!.isEmpty
-                      ? Icon(
-                          Icons.person,
-                          size: 80,
-                          color: AppColors.primary,
-                        )
-                      : null,
-                ),
-              ),
+             
               SizedBox(height: 24),
 
               // Status Badge
@@ -172,8 +151,8 @@ class SopirDetailScreen extends StatelessWidget {
                 icon: Icon(Icons.edit),
                 label: Text('Edit'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                   padding: EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
