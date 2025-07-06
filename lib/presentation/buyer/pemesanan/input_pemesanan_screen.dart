@@ -9,6 +9,7 @@ import 'package:siapantar/data/model/request/penyewa/pemesanan_request_model.dar
 import 'package:siapantar/data/model/response/get_all_sopir_response_model.dart';
 import 'package:siapantar/presentation/admin/admin_main_page.dart';
 import 'package:siapantar/presentation/buyer/pemesanan/bloc/pemesanan_bloc.dart';
+import 'package:siapantar/presentation/buyer/pemesanan/map_page.dart';
 
 class PemesananFormPage extends StatefulWidget {
   const PemesananFormPage({super.key});
@@ -41,6 +42,8 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
   DateTime? selectedTanggalMulai;
   DateTime? selectedTanggalSelesai;
   TimeOfDay? selectedJamJemput;
+  String? selectedAlamatJemput; // Untuk alamat dari map
+  String? selectedAlamatAntar; // Untuk alamat dari map
 
   @override
   void initState() {
@@ -71,6 +74,44 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
     jamJemputController.dispose();
     totalHargaController.dispose();
     super.dispose();
+  }
+
+  // Method untuk membuka map picker
+  Future<void> _openMapPicker(bool isJemput) async {
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MapPage(),
+        ),
+      );
+
+      if (result != null && result is String) {
+        setState(() {
+          if (isJemput) {
+            selectedAlamatJemput = result;
+            alamatJemputController.text = result;
+          } else {
+            selectedAlamatAntar = result;
+            alamatAntarController.text = result;
+          }
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alamat ${isJemput ? "jemput" : "tujuan"} berhasil dipilih dari map'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal membuka map: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   // Date picker
@@ -182,19 +223,33 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
                 ),
                 const SpaceHeight(16),
 
-                // Alamat
-                CustomTextField(
+                // Alamat Jemput dengan Map
+                _buildAddressFieldWithMap(
                   controller: alamatJemputController,
                   label: 'Alamat Jemput',
-                  validator: 'Alamat jemput tidak boleh kosong',
-                  maxLines: 2,
+                  selectedAddress: selectedAlamatJemput,
+                  onMapTap: () => _openMapPicker(true),
+                  onClear: () {
+                    setState(() {
+                      selectedAlamatJemput = null;
+                      alamatJemputController.clear();
+                    });
+                  },
                 ),
                 const SpaceHeight(16),
-                CustomTextField(
+
+                // Alamat Tujuan dengan Map
+                _buildAddressFieldWithMap(
                   controller: alamatAntarController,
                   label: 'Alamat Tujuan',
-                  validator: 'Alamat tujuan tidak boleh kosong',
-                  maxLines: 2,
+                  selectedAddress: selectedAlamatAntar,
+                  onMapTap: () => _openMapPicker(false),
+                  onClear: () {
+                    setState(() {
+                      selectedAlamatAntar = null;
+                      alamatAntarController.clear();
+                    });
+                  },
                 ),
                 const SpaceHeight(16),
 
@@ -376,12 +431,23 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
                             return;
                           }
 
+                          // Gunakan alamat dari map jika tersedia
+                          final finalAlamatJemput = selectedAlamatJemput ?? alamatJemputController.text;
+                          final finalAlamatAntar = selectedAlamatAntar ?? alamatAntarController.text;
+
+                          if (finalAlamatJemput.isEmpty || finalAlamatAntar.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Alamat jemput dan tujuan tidak boleh kosong')),
+                            );
+                            return;
+                          }
+
                           final pemesananRequest = PemesananRequestModel(
                             namaPenyewa: namaPenyewaController.text,
                             noHp: noHpController.text,
                             deskripsi: deskripsiController.text.isNotEmpty ? deskripsiController.text : null,
-                            alamatJemput: alamatJemputController.text,
-                            alamatAntar: alamatAntarController.text,
+                            alamatJemput: finalAlamatJemput,
+                            alamatAntar: finalAlamatAntar,
                             tanggalMulai: _formatDateForApi(selectedTanggalMulai!),
                             tanggalSelesai: _formatDateForApi(selectedTanggalSelesai!),
                             jamJemput: jamJemputController.text.isNotEmpty ? jamJemputController.text : null,
@@ -406,6 +472,140 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAddressFieldWithMap({
+    required TextEditingController controller,
+    required String label,
+    required String? selectedAddress,
+    required VoidCallback onMapTap,
+    required VoidCallback onClear,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.03,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SpaceHeight(8),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Column(
+            children: [
+              // Text field untuk alamat
+              CustomTextField(
+                controller: controller,
+                label: 'Ketik alamat atau pilih dari map',
+                validator: '$label tidak boleh kosong',
+                maxLines: 2,
+                showLabel: false,
+              ),
+              // Tombol untuk membuka map
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on, 
+                         color: AppColors.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        selectedAddress != null 
+                            ? 'Alamat dipilih dari map'
+                            : 'Tap untuk pilih dari map',
+                        style: TextStyle(
+                          color: selectedAddress != null 
+                              ? Colors.green.shade700
+                              : AppColors.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: onMapTap,
+                      icon: Icon(Icons.map, size: 16),
+                      label: Text('Map', style: TextStyle(fontSize: 12)),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Show selected address preview
+        if (selectedAddress != null) ...[
+          const SpaceHeight(8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle, 
+                     color: Colors.green.shade600, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Alamat dari Map:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        selectedAddress,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.green.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: onClear,
+                  icon: Icon(Icons.clear, 
+                           color: Colors.green.shade600, size: 18),
+                  tooltip: 'Hapus alamat map',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:siapantar/data/model/request/auth/login_request_model.dart';
 import 'package:siapantar/presentation/admin/profile/pages/admin_confirm_screen.dart';
 import 'package:siapantar/presentation/auth/bloc/login/login_bloc.dart';
 import 'package:siapantar/presentation/auth/register_screen.dart';
+import 'package:siapantar/presentation/buyer/penyewa_nav_screen.dart';
 import 'package:siapantar/presentation/buyer/profile/penyewa_profile_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -123,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           SnackBar(content: Text(state.responseModel.message!)),
                         );
                         context.pushAndRemoveUntil(
-                          const BuyerProfileScreen(),
+                          const PenyewaNavScreen(),
                           (route) => false,
                         );
                       } else {

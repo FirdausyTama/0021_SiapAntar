@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:siapantar/core/core.dart';
 import 'package:siapantar/presentation/admin/home/bloc/admin_stats_bloc.dart';
+import 'package:siapantar/presentation/admin/home/detail_pesanan_screen.dart';
 import 'package:siapantar/presentation/auth/login_screen.dart';
 import 'package:siapantar/presentation/buyer/pemesanan/bloc/pemesanan_bloc.dart';
 
@@ -147,6 +148,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
+                                onTap: () async {
+                                  // NAVIGASI KE DETAIL SCREEN
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailPesananScreen(
+                                        
+                                      ),
+                                    ),
+                                  );
+                                  
+                                  // REFRESH DATA JIKA ADA UPDATE
+                                  if (result == true) {
+                                    context.read<PemesananBloc>().add(PemesananGetAllEvent());
+                                  }
+                                },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Column(
@@ -193,6 +210,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 16,
+                                            color: Colors.grey[400],
                                           ),
                                         ],
                                       ),
@@ -274,8 +297,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         return Colors.orange;
       case 'confirmed':
         return Colors.green;
-      case 'completed':
+      case 'on_going':
         return Colors.blue;
+      case 'completed':
+        return Colors.indigo;
       case 'cancelled':
         return Colors.red;
       default:
@@ -289,6 +314,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         return Icons.access_time;
       case 'confirmed':
         return Icons.check_circle;
+      case 'on_going':
+        return Icons.directions_car;
       case 'completed':
         return Icons.done_all;
       case 'cancelled':

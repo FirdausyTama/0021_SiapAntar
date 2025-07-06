@@ -239,6 +239,8 @@ class GetPemesanan {
       (Match m) => '${m[1]}.',
     )}';
   }
+
+  get status => null;
 }
 
 class SopirData {

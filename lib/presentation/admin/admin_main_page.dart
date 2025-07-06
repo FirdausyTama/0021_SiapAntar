@@ -5,8 +5,11 @@ import 'package:siapantar/data/model/response/admin_profile_response_model.dart'
 import 'package:siapantar/presentation/admin/home/admin_home_screen.dart';
 import 'package:siapantar/presentation/admin/home/riwayat/history_admin_screen.dart';
 import 'package:siapantar/presentation/admin/home/driver/tambah_driver_screen.dart';
+import 'package:siapantar/presentation/admin/profile/pages/admin_confirm_screen.dart';
 import 'package:siapantar/presentation/admin/profile/pages/admin_profile_screen.dart';
 import 'package:siapantar/presentation/admin/sopir/sopir_home_screen.dart';
+import 'package:siapantar/presentation/camera/home_camera.dart';
+import 'package:siapantar/presentation/camera/native_camera.dart';
 
 class AdminMainPage extends StatefulWidget {
   const AdminMainPage({super.key});
@@ -21,7 +24,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
     const AdminHomeScreen(),
     const SopirHomeScreen(),
     const HistoryAdminScreen(),
-    const AdminProfileScreen(),
+    const AdminConfirmScreen(),
   ];
   @override
   Widget build(BuildContext context) {
