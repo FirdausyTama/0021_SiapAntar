@@ -472,33 +472,33 @@ class _ProfileViewBuyerState extends State<ProfileViewBuyer> {
                 const SizedBox(height: 32),
                 
                 // Submit Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.pushAndRemoveUntil(
-                        const PenyewaNavScreen(),
-                        (route) => false,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF244475),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "Konfirmasi",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
+                // SizedBox(
+                //   width: double.infinity,
+                //   height: 50,
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       context.pushAndRemoveUntil(
+                //         const PenyewaNavScreen(),
+                //         (route) => false,
+                //       );
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: const Color(0xFF244475),
+                //       foregroundColor: Colors.white,
+                //       elevation: 0,
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //     ),
+                //     child: const Text(
+                //       "Konfirmasi",
+                //       style: TextStyle(
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.w600,
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

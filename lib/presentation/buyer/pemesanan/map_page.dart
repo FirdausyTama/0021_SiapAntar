@@ -133,7 +133,7 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Pilih Alamat Tanaman',
+          'Pilih Alamat Anda',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: AppColors.primary,

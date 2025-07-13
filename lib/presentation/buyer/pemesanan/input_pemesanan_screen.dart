@@ -1,6 +1,8 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'package:siapantar/core/components/custom_text_field.dart';
 import 'package:siapantar/core/components/spaces.dart';
 import 'package:siapantar/core/constants/colors.dart';
@@ -10,6 +12,7 @@ import 'package:siapantar/data/model/response/get_all_sopir_response_model.dart'
 import 'package:siapantar/presentation/admin/admin_main_page.dart';
 import 'package:siapantar/presentation/buyer/pemesanan/bloc/pemesanan_bloc.dart';
 import 'package:siapantar/presentation/buyer/pemesanan/map_page.dart';
+import 'package:siapantar/presentation/camera/storage_helper.dart';
 
 class PemesananFormPage extends StatefulWidget {
   const PemesananFormPage({super.key});
@@ -31,6 +34,7 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
   late final TextEditingController totalHargaController;
 
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker _picker = ImagePicker();
 
   // Data lists
   final List<String> carTypes = ['Matic', 'Manual/Matic', 'Manual'];
@@ -44,6 +48,7 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
   TimeOfDay? selectedJamJemput;
   String? selectedAlamatJemput; // Untuk alamat dari map
   String? selectedAlamatAntar; // Untuk alamat dari map
+  File? selectedImage; // Untuk foto formulir
 
   @override
   void initState() {
@@ -74,6 +79,111 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
     jamJemputController.dispose();
     totalHargaController.dispose();
     super.dispose();
+  }
+
+  // Method untuk memilih foto
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Pilih dari Galeri'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickImageFromSource(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Ambil Foto'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickImageFromSource(ImageSource.camera);
+                },
+              ),
+              if (selectedImage != null)
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text('Hapus Foto', style: TextStyle(color: Colors.red)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      selectedImage = null;
+                    });
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Method untuk memilih dan menyimpan foto
+  Future<void> _pickImageFromSource(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        // Show loading
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Save image using StorageHelper
+        final File tempFile = File(image.path);
+        final File savedFile = await StorageHelper.saveImage(tempFile, 'pemesanan_');
+
+        // Hide loading
+        if (mounted) {
+          Navigator.pop(context);
+        }
+
+        setState(() {
+          selectedImage = savedFile;
+        });
+
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Foto berhasil disimpan'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Hide loading if still showing
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menyimpan foto: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   // Method untuk membuka map picker
@@ -217,7 +327,7 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
                 const SpaceHeight(16),
                 CustomTextField(
                   controller: deskripsiController,
-                  label: 'Catatan/Deskripsi (Opsional)',
+                  label: 'Catatan/Deskripsi',
                   validator: '', // Optional
                   maxLines: 3,
                 ),
@@ -299,6 +409,10 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
                     ),
                   ),
                 ),
+                const SpaceHeight(16),
+
+                // Form Pilih Foto
+                _buildPhotoSection(),
                 const SpaceHeight(16),
 
                 // Tipe Mobil
@@ -454,7 +568,7 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
                             tipeMobil: selectedCarType ?? '',
                             sopirId: selectedSopirId ?? 0,
                             totalHarga: totalHargaController.text.isNotEmpty ? totalHargaController.text : null,
-                            fotoFormulir: null,
+                            // fotoFormulir: selectedImage?.path, // Pass file path
                           );
 
                           context.read<PemesananBloc>().add(
@@ -472,6 +586,131 @@ class _PemesananFormPageState extends State<PemesananFormPage> {
           ),
         ),
       ),
+    );
+  }
+
+  // Widget untuk section foto
+  Widget _buildPhotoSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Foto Formulir (Opsional)',
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.03,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SpaceHeight(8),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Column(
+            children: [
+              // Preview foto atau placeholder
+              if (selectedImage != null)
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                  child: Image.file(
+                    selectedImage!,
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              else
+                Container(
+                  width: double.infinity,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.image_outlined,
+                        size: 48,
+                        color: Colors.grey.shade400,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Belum ada foto dipilih',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              
+              // Tombol untuk memilih foto
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: const Radius.circular(16),
+                    bottomRight: const Radius.circular(16),
+                    topLeft: selectedImage != null ? Radius.zero : const Radius.circular(16),
+                    topRight: selectedImage != null ? Radius.zero : const Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.photo_camera, 
+                         color: AppColors.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        selectedImage != null 
+                            ? 'Foto berhasil dipilih'
+                            : 'Tap untuk pilih foto',
+                        style: TextStyle(
+                          color: selectedImage != null 
+                              ? Colors.green.shade700
+                              : AppColors.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: _pickImage,
+                      icon: Icon(
+                        selectedImage != null ? Icons.edit : Icons.add_photo_alternate,
+                        size: 16,
+                      ),
+                      label: Text(
+                        selectedImage != null ? 'Ubah' : 'Pilih',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

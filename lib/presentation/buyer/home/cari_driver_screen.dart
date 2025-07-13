@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:siapantar/core/components/spaces.dart';
 import 'package:siapantar/core/constants/colors.dart';
 import 'package:siapantar/presentation/admin/sopir/bloc/sopir_bloc.dart';
+import 'package:siapantar/presentation/buyer/pemesanan/input_pemesanan_screen.dart';
 
 class SopirsHomeScreen extends StatefulWidget {
   const SopirsHomeScreen({super.key});
@@ -210,6 +211,20 @@ class _SopirHomeScreenState extends State<SopirsHomeScreen> {
             );
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PemesananFormPage(),
+            ),
+          );
+        },
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: Icon(Icons.add),
+        label: Text('Pesan Sopir'),
       ),
     );
   }

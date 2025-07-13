@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:siapantar/core/core.dart';
-import 'package:siapantar/presentation/admin/home/bloc/admin_stats_bloc.dart';
 import 'package:siapantar/presentation/admin/home/detail_pesanan_screen.dart';
-import 'package:siapantar/presentation/auth/login_screen.dart';
 import 'package:siapantar/presentation/buyer/pemesanan/bloc/pemesanan_bloc.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -14,10 +12,23 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  late PemesananBloc _pemesananBloc;
+  
   @override
   void initState() {
     super.initState();
-    context.read<PemesananBloc>().add(PemesananGetAllEvent());
+    // Simpan referensi BLoC di initState untuk keamanan
+    _pemesananBloc = context.read<PemesananBloc>();
+    _pemesananBloc.add(PemesananGetAllEvent());
+  }
+
+  // Fungsi untuk memfilter data berdasarkan status
+  List<dynamic> _getFilteredData(List<dynamic> data) {
+    return data.where((pemesanan) {
+      final status = pemesanan.statusPemesanan?.toLowerCase() ?? '';
+      // Menghilangkan status 'completed' (selesai) dan 'cancelled' (ditolak)
+      return status != 'completed' && status != 'cancelled';
+    }).toList();
   }
 
   @override
@@ -26,7 +37,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'Pesanan Baru',
+          'Pesanan Aktif',
           style: TextStyle(color: AppColors.lightSheet),
         ),
         centerTitle: true,
@@ -35,7 +46,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           IconButton(
             icon: Icon(Icons.refresh, color: AppColors.lightSheet),
             onPressed: () {
-              context.read<PemesananBloc>().add(PemesananGetAllEvent());
+              if (mounted) {
+                _pemesananBloc.add(PemesananGetAllEvent());
+              }
             },
           ),
         ],
@@ -60,15 +73,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: BlocListener<PemesananBloc, PemesananState>(
+              bloc: _pemesananBloc, // Gunakan referensi yang disimpan
               listener: (context, state) {
+                if (!mounted) return; // Safety check
+                
                 if (state is PemesananCreateSuccessState) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Pemesanan berhasil dibuat!')),
+                    const SnackBar(content: Text('Pemesanan berhasil dibuat!')),
                   );
-                  context.read<PemesananBloc>().add(PemesananGetAllEvent());
+                  // Gunakan referensi yang disimpan
+                  _pemesananBloc.add(PemesananGetAllEvent());
                 }
               },
               child: BlocBuilder<PemesananBloc, PemesananState>(
+                bloc: _pemesananBloc, // Gunakan referensi yang disimpan
                 builder: (context, state) {
                   if (state is PemesananLoadingState) {
                     return const Center(child: CircularProgressIndicator());
@@ -77,39 +95,43 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, size: 64, color: Colors.red),
-                          SizedBox(height: 16),
-                          Text('Terjadi Kesalahan',
+                          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                          const SizedBox(height: 16),
+                          const Text('Terjadi Kesalahan',
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(state.errorMessage,
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.grey[600])),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              context.read<PemesananBloc>().add(PemesananGetAllEvent());
+                              if (mounted) {
+                                _pemesananBloc.add(PemesananGetAllEvent());
+                              }
                             },
-                            child: Text('Coba Lagi'),
+                            child: const Text('Coba Lagi'),
                           ),
                         ],
                       ),
                     );
                   } else if (state is PemesananSuccessState) {
-                    final data = state.responseModel.data;
+                    final allData = state.responseModel.data;
+                    // Filter data untuk hanya menampilkan status selain completed dan cancelled
+                    final filteredData = _getFilteredData(allData);
 
-                    if (data.isEmpty) {
+                    if (filteredData.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.assignment_outlined, size: 80, color: Colors.grey),
-                            SizedBox(height: 20),
-                            Text('Belum Ada Pemesanan',
+                            const Icon(Icons.assignment_outlined, size: 80, color: Colors.grey),
+                            const SizedBox(height: 20),
+                            const Text('Tidak Ada Pesanan Aktif',
                                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
-                              'Anda belum memiliki pemesanan.\nMulai buat pemesanan pertama Anda!',
+                              'Saat ini tidak ada pesanan yang sedang berlangsung.\nSemua pesanan telah selesai atau dibatalkan.',
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.grey[600], fontSize: 16),
                             ),
@@ -133,13 +155,47 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             ),
                           ),
                         ),
+                        // Status summary cards
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatusCard(
+                                  'Menunggu',
+                                  filteredData.where((p) => p.statusPemesanan == 'pending').length,
+                                  Colors.orange,
+                                  Icons.access_time,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildStatusCard(
+                                  'Dikonfirmasi',
+                                  filteredData.where((p) => p.statusPemesanan == 'confirmed').length,
+                                  Colors.green,
+                                  Icons.check_circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildStatusCard(
+                                  'Berlangsung',
+                                  filteredData.where((p) => p.statusPemesanan == 'on_going').length,
+                                  Colors.blue,
+                                  Icons.directions_car,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         ListView.separated(
-                          itemCount: data.length,
+                          itemCount: filteredData.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           separatorBuilder: (_, __) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {
-                            final pemesanan = data[index];
+                            final pemesanan = filteredData[index];
                             return Card(
                               elevation: 3,
                               margin: EdgeInsets.zero,
@@ -149,19 +205,39 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
                                 onTap: () async {
-                                  // NAVIGASI KE DETAIL SCREEN
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailPesananScreen(
-                                        
-                                      ),
-                                    ),
-                                  );
+                                  // Pastikan widget masih mounted sebelum navigasi
+                                  if (!mounted) return;
                                   
-                                  // REFRESH DATA JIKA ADA UPDATE
-                                  if (result == true) {
-                                    context.read<PemesananBloc>().add(PemesananGetAllEvent());
+                                  try {
+                                    // NAVIGASI KE DETAIL SCREEN
+                                    final result = await Navigator.push<bool>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetailPesananScreen(
+                                          pemesanan: pemesanan,
+                                        ),
+                                      ),
+                                    );
+                                    
+                                    // REFRESH DATA JIKA ADA UPDATE
+                                    // Gunakan addPostFrameCallback untuk keamanan maksimal
+                                    if (result == true && mounted) {
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        if (mounted) {
+                                          _pemesananBloc.add(PemesananGetAllEvent());
+                                        }
+                                      });
+                                    }
+                                  } catch (e) {
+                                    debugPrint('Navigation error: $e');
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Terjadi kesalahan: ${e.toString()}'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                                 child: Padding(
@@ -180,14 +256,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                               size: 16,
                                             ),
                                           ),
-                                          SizedBox(width: 12),
+                                          const SizedBox(width: 12),
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   'Pemesanan #${pemesanan.id}',
-                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                                 ),
                                                 Text(
                                                   pemesanan.tanggalMulai,
@@ -211,7 +287,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(width: 8),
+                                          const SizedBox(width: 8),
                                           Icon(
                                             Icons.arrow_forward_ios,
                                             size: 16,
@@ -219,46 +295,46 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 12),
+                                      const SizedBox(height: 12),
                                       Row(
                                         children: [
-                                          Icon(Icons.location_on, size: 16, color: Colors.green),
-                                          SizedBox(width: 4),
+                                          const Icon(Icons.location_on, size: 16, color: Colors.green),
+                                          const SizedBox(width: 4),
                                           Expanded(
                                             child: Text(
                                               pemesanan.alamatJemput,
-                                              style: TextStyle(fontSize: 12),
+                                              style: const TextStyle(fontSize: 12),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          Icon(Icons.location_on, size: 16, color: Colors.red),
-                                          SizedBox(width: 4),
+                                          const Icon(Icons.location_on, size: 16, color: Colors.red),
+                                          const SizedBox(width: 4),
                                           Expanded(
                                             child: Text(
                                               pemesanan.alamatAntar,
-                                              style: TextStyle(fontSize: 12),
+                                              style: const TextStyle(fontSize: 12),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Row(
                                         children: [
-                                          Icon(Icons.person, size: 14, color: Colors.grey),
-                                          SizedBox(width: 4),
+                                          const Icon(Icons.person, size: 14, color: Colors.grey),
+                                          const SizedBox(width: 4),
                                           Text(
                                             pemesanan.sopir.namaSopir,
-                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                                           ),
-                                          Spacer(),
+                                          const Spacer(),
                                           if (pemesanan.totalHarga != null)
                                             Text(
                                               pemesanan.formattedTotalHarga,
@@ -287,6 +363,40 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Widget untuk menampilkan summary status
+  Widget _buildStatusCard(String title, int count, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            count.toString(),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -203,143 +203,7 @@ class _PemesananHomeScreenState extends State<PemesananHomeScreen> {
                           separatorBuilder: (_, __) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final pemesanan = data[index];
-                            return Card(
-                              elevation: 3,
-                              margin: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: InkWell(
-                                // onTap: () {
-                                //   Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //       builder: (context) => PemesananDetailScreen(data: pemesanan),
-                                //     ),
-                                //   );
-                                // },
-                                borderRadius: BorderRadius.circular(12),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Header
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: _getStatusColor(pemesanan.statusPemesanan),
-                                            child: Icon(
-                                              _getStatusIcon(pemesanan.statusPemesanan),
-                                              color: Colors.white,
-                                              size: 16,
-                                            ),
-                                          ),
-                                          SizedBox(width: 12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Pemesanan #${pemesanan.id}',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  pemesanan.tanggalMulai,
-                                                  style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0,
-                                              vertical: 4.0,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getStatusColor(pemesanan.statusPemesanan).withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(8.0),
-                                            ),
-                                            child: Text(
-                                              pemesanan.statusText,
-                                              style: TextStyle(
-                                                color: _getStatusColor(pemesanan.statusPemesanan),
-                                                fontSize: 10.0,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      
-                                      SizedBox(height: 12),
-                                      
-                                      // Route Info
-                                      Row(
-                                        children: [
-                                          Icon(Icons.location_on, size: 16, color: Colors.green),
-                                          SizedBox(width: 4),
-                                          Expanded(
-                                            child: Text(
-                                              pemesanan.alamatJemput,
-                                              style: TextStyle(fontSize: 12),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          Icon(Icons.location_on, size: 16, color: Colors.red),
-                                          SizedBox(width: 4),
-                                          Expanded(
-                                            child: Text(
-                                              pemesanan.alamatAntar,
-                                              style: TextStyle(fontSize: 12),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      
-                                      SizedBox(height: 8),
-                                      
-                                      // Driver & Price Info
-                                      Row(
-                                        children: [
-                                          Icon(Icons.person, size: 14, color: Colors.grey),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            pemesanan.sopir.namaSopir,
-                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                                          ),
-                                          Spacer(),
-                                          if (pemesanan.totalHarga != null)
-                                            Text(
-                                              pemesanan.formattedTotalHarga,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
+                            return _buildOrderCard(pemesanan);
                           },
                         ),
                       ],
@@ -355,19 +219,220 @@ class _PemesananHomeScreenState extends State<PemesananHomeScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PemesananFormPage(),
-            ),
+    );
+  }
+
+  // Order Card - Design yang sama seperti di home screen
+  Widget _buildOrderCard(dynamic pemesanan) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+          // Tambahkan navigasi ke detail jika diperlukan
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Detail Pesanan #${pemesanan.id}')),
           );
         },
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        icon: Icon(Icons.add),
-        label: Text('Pesan Sopir'),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Status Icon
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _getStatusColor(pemesanan.statusPemesanan).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  _getStatusIcon(pemesanan.statusPemesanan),
+                  color: _getStatusColor(pemesanan.statusPemesanan),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Row
+                    Row(
+                      children: [
+                        Text(
+                          'Pesanan #${pemesanan.id}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(pemesanan.statusPemesanan).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            pemesanan.statusText,
+                            style: TextStyle(
+                              color: _getStatusColor(pemesanan.statusPemesanan),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // Route dengan icon terpisah
+                    Column(
+                      children: [
+                        // Alamat Jemput
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.my_location,
+                                size: 12, 
+                                color: Colors.green[700],
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Jemput: ',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                pemesanan.alamatJemput,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 11,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        
+                        // Alamat Antar
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.location_on,
+                                size: 12, 
+                                color: Colors.red[700],
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Tujuan: ',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                pemesanan.alamatAntar,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 11,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    // Driver & Price Info
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            size: 12, 
+                            color: Colors.blue[700],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          pemesanan.sopir.namaSopir,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (pemesanan.totalHarga != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              pemesanan.formattedTotalHarga,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
