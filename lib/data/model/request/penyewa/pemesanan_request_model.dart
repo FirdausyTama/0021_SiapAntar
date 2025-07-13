@@ -10,7 +10,6 @@ class PemesananRequestModel {
   final String tanggalSelesai;
   final String? jamJemput;
   final String tipeMobil;
-  final String? fotoFormulir;
   final int sopirId;
   final String? totalHarga;
 
@@ -24,7 +23,6 @@ class PemesananRequestModel {
     required this.tanggalSelesai,
     this.jamJemput,
     required this.tipeMobil,
-    this.fotoFormulir,
     required this.sopirId,
     this.totalHarga,
   });
@@ -39,7 +37,6 @@ class PemesananRequestModel {
     String? tanggalSelesai,
     String? jamJemput,
     String? tipeMobil,
-    String? fotoFormulir,
     int? sopirId,
     String? totalHarga,
   }) => PemesananRequestModel(
@@ -52,7 +49,6 @@ class PemesananRequestModel {
     tanggalSelesai: tanggalSelesai ?? this.tanggalSelesai,
     jamJemput: jamJemput ?? this.jamJemput,
     tipeMobil: tipeMobil ?? this.tipeMobil,
-    fotoFormulir: fotoFormulir ?? this.fotoFormulir,
     sopirId: sopirId ?? this.sopirId,
     totalHarga: totalHarga ?? this.totalHarga,
   );
@@ -73,7 +69,6 @@ class PemesananRequestModel {
         tanggalSelesai: json["tanggal_selesai"],
         jamJemput: json["jam_jemput"],
         tipeMobil: json["tipe_mobil"],
-        fotoFormulir: json["foto_formulir"],
         sopirId: json["sopir_id"],
         totalHarga: json["total_harga"],
       );
@@ -88,7 +83,6 @@ class PemesananRequestModel {
     "tanggal_selesai": tanggalSelesai,
     if (jamJemput != null) "jam_jemput": jamJemput,
     "tipe_mobil": tipeMobil,
-    if (fotoFormulir != null) "foto_formulir": fotoFormulir,
     "sopir_id": sopirId,
     if (totalHarga != null) "total_harga": totalHarga,
   };

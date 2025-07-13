@@ -16,10 +16,16 @@ class PemesananRepository {
     PemesananRequestModel requestModel,
   ) async {
     try {
+      // Debug: print data yang akan dikirim
+      print('Sending data: ${requestModel.toJson()}');
+      
       final response = await _serviceHttpClient.postWithToken(
         "pemesanan",
         requestModel.toJson(),
       );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
         if (response.body.isNotEmpty) {
@@ -38,6 +44,7 @@ class PemesananRepository {
         }
       }
     } catch (e) {
+      print('Error creating pemesanan: $e');
       return Left("An error occurred while creating pemesanan: $e");
     }
   }
